@@ -220,4 +220,29 @@ coef(regfit.full ,19)
 
 #these are the variables will be used for lasso and ridge .
 
+####lasso#####
+m <- revenue ~ (miles + numbids + phone +options + startbid + dent + broken + rust + length +warranty + logsize+ logstart + loghtml + sellerage + n + sell + totallisted + totalsold +dealer) 
 
+x=model.matrix(m,numdf)[,-1]
+y=numdf$revenue
+
+traindata=sample(1:nrow(x), nrow(x)/2)
+testdata=(-traindata)
+
+grid=10^seq(10,-2,length=100)
+lasso.mod = glmnet(x[traindata,],y[traindata],alpha=1,lambda=grid) 
+y.test=y[testdata]
+cvl.out=cv.glmnet(x[traindata,],y[traindata],alpha=1)
+
+bestlam_l=cvl.out$lambda.min
+bestlam_l
+
+lasso.pred=predict(lasso.mod,s=bestlam_l ,newx=x[testdata,])
+mse_l<-mean((lasso.pred-y.test)^2)
+mse_l
+out_l=glmnet(x,y,alpha=1,lambda=grid)
+
+lasso.coef=predict(out_l,type="coefficients",s=bestlam_l)
+lasso.coef
+                            
+                    
